@@ -45,7 +45,7 @@ Programming Concepts and Technologies
 •	JSON – to parse API responses and store configuration data
 •	Datetime – for handling dates, times, deadlines, and scheduled events
 
-# Development Tools
+# Development Tools
 •	Python 3
 •	Visual Studio Code (VS Code)
 •	Git and GitHub (version control)
