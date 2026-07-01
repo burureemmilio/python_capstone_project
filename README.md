@@ -50,7 +50,7 @@ Programming Concepts and Technologies
 •	Visual Studio Code (VS Code)
 •	Git and GitHub (version control)
 
-# Data Source
+# Data Source
 The main data source for Weather or Not will be the OpenWeather API. The application will use this API to retrieve real-time weather information and short-term forecast data based on the city entered by the user. The data returned from the API will be in JSON format and will include details such as temperature, weather condition, humidity, wind speed, rainfall information, and forecast times.
 In addition to the external weather data, the application will use a local SQLite database to store user-generated data such as daily plans, favorite cities, search history, and user preferences. This allows the application to combine live weather information with stored planning data.
 
