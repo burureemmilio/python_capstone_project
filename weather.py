@@ -49,11 +49,12 @@ def get_current_weather(city):
 
     if data_current["cod"] != 200:
         print(f"Error: {data_current['message']}")
+        return
 
     #save_search(city)
 
     city_name = data_current['name']
-    temp = round(int(data_current["main"]["temp"])-273.15, 1)
+    temp = round(float(data_current["main"]["temp"])-273.15, 1)
     weather =  data_current["weather"][0]["description"]
     humidity = data_current["main"]["humidity"]
     wind_speed = data_current["wind"]["speed"]
@@ -125,7 +126,7 @@ def display_selected_forecast(forecast_data, selected_date, selected_time):
         date, time = date_time.split()
 
         if date == selected_date and time == selected_time:
-            temperature = round(int(item["main"]["temp"]) - 273.15, 1)
+            temperature = round(float(item["main"]["temp"]) - 273.15, 1)
             condition = item["weather"][0]["description"]
             humidity = item["main"]["humidity"]
             wind_speed = item["wind"]["speed"]
@@ -218,7 +219,7 @@ def add_task():
             date, time = date_time.split()
 
             if date == selected_date and time == selected_time:
-                temperature = round(int(item["main"]["temp"]) - 273.15, 1)
+                temperature = round(float(item["main"]["temp"]) - 273.15, 1)
                 condition = item["weather"][0]["description"]
 
                 display_selected_forecast(forecast_data, selected_date, selected_time)
@@ -236,6 +237,145 @@ def add_task():
 
                 break    
 
+def view_tasks():
+    cursor.execute("SELECT * FROM tasks")
+    records = cursor.fetchall()
+
+    print("\nSAVED TASKS")
+    print("-" * 30)
+
+    if len(records) == 0:
+        print("No tasks found.")
+    else:
+        for record in records:
+            print(f"{record[0]}. {record[1]}")
+            print(f"City: {record[2]}")
+            print(f"Date: {record[3]}")
+            print(f"Time: {record[4]}")
+            print(f"Weather: {record[5]}")
+            print(f"Temperature: {record[6]}°C")
+            print(f"Created At: {record[7]}")
+            print("-" * 30)    
+
+def delete_task():
+    view_tasks()
+
+    task_id = input("Enter task ID to delete: ")
+
+    try:
+        task_id = int(task_id)
+
+        cursor.execute("DELETE FROM tasks WHERE id = ?", (task_id,))
+        conn.commit()
+
+        if cursor.rowcount > 0:
+            print("Task deleted successfully.")
+        else:
+            print("Task not found.")
+
+    except ValueError:
+        print("Invalid input. Please enter a number.")
+
+def update_task():
+    view_tasks()
+
+    try:
+        task_id = int(input("Enter task ID to update: "))
+    except ValueError:
+        print("Invalid input. Please enter a number.")
+        return
+
+    cursor.execute("SELECT * FROM tasks WHERE id = ?", (task_id,))
+    task = cursor.fetchone()
+
+    if task is None:
+        print("Task not found.")
+        return
+
+    new_task_name = input("Enter new task name: ")
+    city = input("Enter new city: ")
+
+    forecast_data = get_forecast(city)
+
+    if forecast_data:
+        dates = get_available_dates(forecast_data)
+
+        print("\nAvailable forecast dates:")
+        print("-" * 30)
+
+        for index, date in enumerate(dates, start=1):
+            print(f"{index}. {date}")
+
+        date_choice = get_valid_choice(dates, "Choose a date number: ")
+        selected_date = dates[date_choice - 1]
+
+        times = get_available_times(forecast_data, selected_date)
+
+        print("\nAvailable forecast times:")
+        print("-" * 30)
+
+        for index, time in enumerate(times, start=1):
+            print(f"{index}. {time}")
+
+        time_choice = get_valid_choice(times, "Choose a time number: ")
+        selected_time = times[time_choice - 1]
+
+        for item in forecast_data["list"]:
+            date_time = item["dt_txt"]
+            date, time = date_time.split()
+
+            if date == selected_date and time == selected_time:
+                temperature = round(float(item["main"]["temp"]) - 273.15, 1)
+                condition = item["weather"][0]["description"]
+
+                display_selected_forecast(forecast_data, selected_date, selected_time)
+
+                cursor.execute("""
+                UPDATE tasks
+                SET task_name = ?, city = ?, task_date = ?, task_time = ?, weather_condition = ?, temperature = ?
+                WHERE id = ?
+                """, (
+                    new_task_name,
+                    city,
+                    selected_date,
+                    selected_time,
+                    condition,
+                    temperature,
+                    task_id
+                ))
+
+                conn.commit()
+
+                print("Task updated successfully.")
+                break
+
+def search_tasks_by_city():
+    city = input("Enter city to search: ").strip()
+
+    cursor.execute("""
+    SELECT * FROM tasks
+    WHERE city LIKE ?
+    ORDER BY id DESC
+    """, (f"%{city}%",))
+
+    records = cursor.fetchall()
+
+    print("\nSEARCH RESULTS")
+    print("-" * 30)
+
+    if len(records) == 0:
+        print("No tasks found for that city.")
+    else:
+        for record in records:
+            print(f"{record[0]}. {record[1]}")
+            print(f"City: {record[2]}")
+            print(f"Date: {record[3]}")
+            print(f"Time: {record[4]}")
+            print(f"Weather: {record[5]}")
+            print(f"Temperature: {record[6]}°C")
+            print(f"Created At: {record[7]}")
+            print("-" * 30)
+
 while True:
 
     print("\n" + "=" * 40)
@@ -244,10 +384,14 @@ while True:
     print("1. Check Current Weather")
     print("2. Check Forecast")
     print("3. Add Task")
-    print("4. View Search History")
-    print("5. Exit")
+    print("4. View Tasks")
+    print("5. Delete Task")
+    print("6. Update Task")
+    print("7. View Search History")
+    print("8. Search Tasks by City")
+    print("9. Exit")
 
-    choice = input("Choose an option (1-5): ")
+    choice = input("Choose an option (1-9): ")
 
     if choice == "1":
         city = input("Enter city: ")
@@ -292,9 +436,21 @@ while True:
         add_task()
 
     elif choice == "4":
-        view_search_history()
+        view_tasks()
 
     elif choice == "5":
+        delete_task()
+
+    elif choice == "6":
+        update_task()
+
+    elif choice == "7":
+        view_search_history()
+    
+    elif choice == "8":
+        search_tasks_by_city()
+
+    elif choice == "9":
         print("Thank you for using Weather Dashboard!")
         break
 
