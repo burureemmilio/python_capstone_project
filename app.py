@@ -7,7 +7,8 @@ from weather import (
     get_forecast,
     get_available_dates,
     get_available_times,
-    get_selected_forecast
+    get_selected_forecast,
+    get_weather_advice
 )
 from tasks import (
     save_task,
@@ -32,7 +33,8 @@ Use the menu on the left to:
 - 📝 Plan tasks around the weather
 - 📖 View your search history
 """)
-
+st.sidebar.title("Menu")
+st.sidebar.write("Choose what you want to do.")
 menu = st.sidebar.selectbox(
     "Choose an option",
     [
@@ -137,7 +139,9 @@ elif menu == "Add Task":
             )
 
             task_name = st.text_input("Enter task name")
-
+             
+            advice = get_weather_advice(selected_forecast["condition"])
+            st.warning(f"Advice: {advice}")
             if selected_forecast:
                 st.subheader("Selected Forecast")
 
@@ -166,7 +170,7 @@ elif menu == "Add Task":
                         )
 
                         st.success("Task saved successfully.")
-
+                       
                 if st.button("Discard Task"):
                     st.info("Task discarded. It was not saved.")
 

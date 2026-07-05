@@ -77,3 +77,17 @@ def get_selected_forecast(forecast_data, selected_date, selected_time):
             }
 
     return None
+
+def get_weather_advice(condition):
+    condition = condition.lower()
+
+    if "rain" in condition:
+        return "Carry an umbrella or consider rescheduling outdoor activities."
+    elif "clear" in condition:
+        return "Great weather for outdoor activities."
+    elif "cloud" in condition:
+        return "Weather looks okay, but it may feel cloudy."
+    elif "storm" in condition or "thunder" in condition:
+        return "Avoid outdoor activities if possible."
+    else:
+        return "Check conditions carefully before planning your task."
