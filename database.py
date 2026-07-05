@@ -6,6 +6,7 @@ cursor = conn.cursor()
 
 
 def create_tables():
+    
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS search_history(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -28,6 +29,7 @@ def create_tables():
     """)
 
     conn.commit()
+    
 
 
 def save_search(city):
