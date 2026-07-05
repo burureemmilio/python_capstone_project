@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 import sqlite3
 from datetime import datetime
+import pandas as pd
 
 st.set_page_config(page_title="Weather Dashboard", layout="wide")
 
@@ -308,20 +309,19 @@ elif menu == "View Tasks":
     if len(records) == 0:
         st.info("No tasks found.")
     else:
-        st.dataframe(
-            records,
-            column_config={
-                0: "ID",
-                1: "Task Name",
-                2: "City",
-                3: "Date",
-                4: "Time",
-                5: "Weather",
-                6: "Temperature",
-                7: "Created At"
-            },
-            use_container_width=True
-        )
+        df = pd.DataFrame(records, columns=[
+            "ID",
+            "Task Name",
+            "City",
+            "Date",
+            "Time",
+            "Weather",
+            "Temperature",
+            "Created At"
+        ])
+
+        st.dataframe(df, use_container_width=True)
+
 elif menu == "Delete Task":
     st.header("Delete Task")
 
@@ -443,20 +443,19 @@ elif menu == "Search Tasks by City":
             if len(records) == 0:
                 st.info("No tasks found for that city.")
             else:
-                st.dataframe(
-                    records,
-                    column_config={
-                        0: "ID",
-                        1: "Task Name",
-                        2: "City",
-                        3: "Date",
-                        4: "Time",
-                        5: "Weather",
-                        6: "Temperature",
-                        7: "Created At"
-                    },
-                    use_container_width=True
-                )
+                df = pd.DataFrame(records, columns=[
+                    "ID",
+                    "Task Name",
+                    "City",
+                    "Date",
+                    "Time",
+                    "Weather",
+                    "Temperature",
+                    "Created At"
+                ])
+
+                st.dataframe(df, use_container_width=True)
+
 elif menu == "View Search History":
     st.header("Search History")
 
@@ -465,12 +464,10 @@ elif menu == "View Search History":
     if len(records) == 0:
         st.info("No search history found.")
     else:
-        st.dataframe(
-            records,
-            column_config={
-                0: "ID",
-                1: "City",
-                2: "Search Time"
-            },
-            use_container_width=True
-        )
+        df = pd.DataFrame(records, columns=[
+            "ID",
+            "City",
+            "Search Time"
+        ])
+
+        st.dataframe(df, use_container_width=True)
