@@ -34,7 +34,6 @@ Use the menu on the left to:
 - 📖 View your search history
 """)
 st.sidebar.title("Menu")
-st.sidebar.write("Choose what you want to do.")
 menu = st.sidebar.selectbox(
     "Choose an option",
     [
