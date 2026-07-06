@@ -1,12 +1,15 @@
 import sqlite3
 from datetime import datetime
 
-conn = sqlite3.connect("weather.db", check_same_thread=False)
-cursor = conn.cursor()
+
+def get_connection():
+    return sqlite3.connect("weather.db")
 
 
 def create_tables():
-    
+    conn = get_connection()
+    cursor = conn.cursor()
+
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS search_history(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -29,10 +32,13 @@ def create_tables():
     """)
 
     conn.commit()
-    
+    conn.close()
 
 
 def save_search(city):
+    conn = get_connection()
+    cursor = conn.cursor()
+
     search_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     cursor.execute("""
@@ -41,13 +47,21 @@ def save_search(city):
     """, (city, search_time))
 
     conn.commit()
+    conn.close()
 
 
 def get_search_history():
+    conn = get_connection()
+    cursor = conn.cursor()
+
     cursor.execute("""
     SELECT id, city, search_time
     FROM search_history
     ORDER BY id DESC
     """)
 
-    return cursor.fetchall()
+    records = cursor.fetchall()
+
+    conn.close()
+
+    return records

@@ -1,8 +1,11 @@
 from datetime import datetime
-from database import cursor, conn
+from database import get_connection
 
 
 def save_task(task_name, city, task_date, task_time, weather_condition, temperature):
+    conn = get_connection()
+    cursor = conn.cursor()
+
     created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     cursor.execute("""
@@ -11,26 +14,42 @@ def save_task(task_name, city, task_date, task_time, weather_condition, temperat
     """, (task_name, city, task_date, task_time, weather_condition, temperature, created_at))
 
     conn.commit()
+    conn.close()
 
 
 def get_tasks():
+    conn = get_connection()
+    cursor = conn.cursor()
+
     cursor.execute("""
     SELECT id, task_name, city, task_date, task_time, weather_condition, temperature, created_at
     FROM tasks
     ORDER BY id DESC
     """)
 
-    return cursor.fetchall()
+    tasks = cursor.fetchall()
+    conn.close()
+
+    return tasks
 
 
 def delete_task_by_id(task_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+
     cursor.execute("DELETE FROM tasks WHERE id = ?", (task_id,))
     conn.commit()
 
-    return cursor.rowcount
+    deleted = cursor.rowcount
+    conn.close()
+
+    return deleted
 
 
 def update_task_by_id(task_id, task_name, city, task_date, task_time, weather_condition, temperature):
+    conn = get_connection()
+    cursor = conn.cursor()
+
     cursor.execute("""
     UPDATE tasks
     SET task_name = ?, city = ?, task_date = ?, task_time = ?, weather_condition = ?, temperature = ?
@@ -47,10 +66,16 @@ def update_task_by_id(task_id, task_name, city, task_date, task_time, weather_co
 
     conn.commit()
 
-    return cursor.rowcount
+    updated = cursor.rowcount
+    conn.close()
+
+    return updated
 
 
 def search_tasks_by_city(city):
+    conn = get_connection()
+    cursor = conn.cursor()
+
     cursor.execute("""
     SELECT id, task_name, city, task_date, task_time, weather_condition, temperature, created_at
     FROM tasks
@@ -58,4 +83,7 @@ def search_tasks_by_city(city):
     ORDER BY id DESC
     """, (f"%{city}%",))
 
-    return cursor.fetchall()
+    results = cursor.fetchall()
+    conn.close()
+
+    return results

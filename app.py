@@ -34,7 +34,8 @@ Use the menu on the left to:
 - 📖 View your search history
 """)
 st.sidebar.title("Menu")
-menu = st.sidebar.selectbox(
+
+menu = st.sidebar.radio(
     "Choose an option",
     [
         "Check Current Weather",
@@ -276,6 +277,8 @@ elif menu == "Update Task":
                 )
 
                 if selected_forecast:
+                    advice = get_weather_advice(selected_forecast["condition"])
+                    st.warning(f"Advice: {advice}")
                     st.subheader("New Selected Forecast")
 
                     col1, col2 = st.columns(2)
