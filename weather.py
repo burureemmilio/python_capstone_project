@@ -1,5 +1,5 @@
 import requests
-
+from datetime import datetime
 api_key = "dd3d923481948739086ab7bd19423514"
 
 
@@ -46,6 +46,8 @@ def get_available_dates(forecast_data):
 
     return dates
 
+def format_time_12hr(time_text):
+    return datetime.strptime(time_text, "%H:%M:%S").strftime("%I:%M %p")
 
 def get_available_times(forecast_data, selected_date):
     times = []
@@ -54,12 +56,48 @@ def get_available_times(forecast_data, selected_date):
         date, time = item["dt_txt"].split()
 
         if date == selected_date:
-            times.append(time)
+            times.append(format_time_12hr(time))
 
     return times
 
+def get_available_time_slots(forecast_data, selected_date):
+    raw_times = []
+
+    for item in forecast_data["list"]:
+        date, time = item["dt_txt"].split()
+
+        if date == selected_date:
+            raw_times.append(time)
+
+    time_slots = []
+
+    for i in range(len(raw_times)):
+        start_time = raw_times[i]
+        start_hour = int(start_time.split(":")[0])
+
+        end_hour = start_hour + 3
+
+        if end_hour >= 24:
+            end_hour = end_hour - 24
+
+        end_time = f"{end_hour:02d}:00:00"
+
+        start_time_12hr = format_time_12hr(start_time)
+        end_time_12hr = format_time_12hr(end_time)
+
+        time_slots.append(f"{start_time_12hr} - {end_time_12hr}")
+
+    return time_slots
+
 
 def get_selected_forecast(forecast_data, selected_date, selected_time):
+    # If selected_time is a range like "09:00:00 - 12:00:00",
+    # use only the start time: "09:00:00"
+    if " - " in selected_time:
+        selected_time = selected_time.split(" - ")[0]
+        
+    selected_time = datetime.strptime(selected_time, "%I:%M %p").strftime("%H:%M:%S")
+
     for item in forecast_data["list"]:
         date, time = item["dt_txt"].split()
 

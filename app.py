@@ -8,7 +8,9 @@ from weather import (
     get_available_dates,
     get_available_times,
     get_selected_forecast,
-    get_weather_advice
+    get_weather_advice,
+    get_available_time_slots
+
 )
 from tasks import (
     save_task,
@@ -91,14 +93,14 @@ elif menu == "Check Forecast":
             dates = get_available_dates(forecast_data)
             selected_date = st.selectbox("Select forecast date", dates)
 
-            times = get_available_times(forecast_data, selected_date)
-            selected_time = st.selectbox("Select forecast time", times)
+            time_slots = get_available_time_slots(forecast_data, selected_date)
+            selected_slot = st.selectbox("Select time to check forecast", time_slots)
 
             if st.button("Show Forecast"):
                 selected_forecast = get_selected_forecast(
                     forecast_data,
                     selected_date,
-                    selected_time
+                    selected_slot
                 )
 
                 if selected_forecast:
@@ -129,14 +131,14 @@ elif menu == "Add Task":
             dates = get_available_dates(forecast_data)
             selected_date = st.selectbox("Select task date", dates)
 
-            times = get_available_times(forecast_data, selected_date)
-            selected_time = st.selectbox("Select task time", times)
-
+            time_slots = get_available_time_slots(forecast_data, selected_date)
+            selected_slot = st.selectbox("Select task time", time_slots)
             selected_forecast = get_selected_forecast(
-                forecast_data,
-                selected_date,
-                selected_time
+            forecast_data,
+            selected_date,
+            selected_slot
             )
+            
 
             task_name = st.text_input("Enter task name")
              
@@ -164,15 +166,14 @@ elif menu == "Add Task":
                             task_name,
                             city,
                             selected_date,
-                            selected_time,
+                            selected_slot,
                             selected_forecast["condition"],
                             selected_forecast["temperature"]
                         )
 
                         st.success("Task saved successfully.")
                        
-                if st.button("Discard Task"):
-                    st.info("Task discarded. It was not saved.")
+                
 
 
 elif menu == "View Tasks":
@@ -267,13 +268,13 @@ elif menu == "Update Task":
                 dates = get_available_dates(forecast_data)
                 selected_date = st.selectbox("Select new task date", dates)
 
-                times = get_available_times(forecast_data, selected_date)
-                selected_time = st.selectbox("Select new task time", times)
+                time_slots = get_available_time_slots(forecast_data, selected_date)
+                selected_slot = st.selectbox("Select new task time", time_slots)
 
                 selected_forecast = get_selected_forecast(
                     forecast_data,
                     selected_date,
-                    selected_time
+                    selected_slot
                 )
 
                 if selected_forecast:
@@ -295,7 +296,7 @@ elif menu == "Update Task":
                                 new_task_name,
                                 new_city,
                                 selected_date,
-                                selected_time,
+                                selected_slot,
                                 selected_forecast["condition"],
                                 selected_forecast["temperature"]
                             )
